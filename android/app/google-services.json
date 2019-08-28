@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "337944119727",
+    "firebase_url": "https://youtvapi.firebaseio.com",
+    "project_id": "youtvapi",
+    "storage_bucket": "youtvapi.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:337944119727:android:1aee0f751a1a503e",
+        "android_client_info": {
+          "package_name": "com.beetcore.you_tv"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "337944119727-51r613ic5e20mu4g1ppbj26hrtioq1to.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCxJHPyxVmjVXgerjsWYRzjvFY1_gMOsKQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "337944119727-51r613ic5e20mu4g1ppbj26hrtioq1to.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "337944119727-8v8743et4r1su3pt5s0oh7ot3lbjgf1u.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.beetcore.youtv"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
