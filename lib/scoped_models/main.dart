@@ -9,11 +9,14 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:dio/dio.dart';
+import 'package:path_provider/path_provider.dart';
 import '../models/user.dart';
 import '../models/gallery_image.dart';
 
 import '../models/movie.dart';
 import '../models/movie_cast.dart';
+import '../models/download.dart';
 
 import '../utilities/utils.dart';
 
@@ -330,9 +333,13 @@ class MainModel extends Model with ChannelsModel{
 
   List<Movie> _movies = [];
   List<Movie> _likedMovies = [];
+  List <Download> downloadMovies = [];
   dynamic movieStream;
 
   DatabaseReference movieDatabase = FirebaseDatabase.instance.reference().child('movies');
+  Dio dio  = Dio();
+  bool downloadStarted = false;
+  String downloadProgress;
 
   List<Movie> get movies{
     return List.from(_movies);
@@ -410,6 +417,37 @@ class MainModel extends Model with ChannelsModel{
       notifyListeners();
     }
     // print(_movies.length);
+  }
+
+  Future<String> downloadMovie() async{
+    try {
+      Directory downloadPath = await getApplicationDocumentsDirectory();
+      dio.download('https://firebasestorage.googleapis.com/v0/b/youtvapi.appspot.com/o/Concussion.mp4', '${downloadPath.path}/movies/Concussion.mp4', onReceiveProgress: (rec, total){
+        downloadStarted = true;
+        downloadProgress = '${((rec/total) * 100).toStringAsFixed(0)}%';
+        downloadMovies.add(
+          Download(
+            name: 'Concussion',
+            src: '${downloadPath.path}/movies/Concussion.mp4'
+          )
+        );
+        // if(rec == total){
+        //   downloadMovies.add(
+        //     Download(
+        //       src: '${downloadPath.path}/movies/Concussion.mp4'
+        //     )
+        //   );
+        //   notifyListeners();
+        // }
+        notifyListeners();
+      });
+      notifyListeners();
+    } catch (e) {
+      print('An error occured');
+    }
+
+    downloadProgress = 'Completed';
+    return downloadProgress;
   }
 
   //FUNCTION TO CHANGE LAYOUT VIEW

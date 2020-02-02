@@ -1,0 +1,85 @@
+ void initState(){
+    trailerPlayerController = VideoPlayerController.network(widget._movie.trailer);
+    // moviePlayerController = VideoPlayerController.network('https://firebasestorage.googleapis.com/v0/b/youtvapi.appspot.com/o/Concussion.mp4?alt=media&token=9c15437e-5b60-4ecb-93c0-3bdcfd1834a9');
+
+    trailerController = ChewieController(
+      videoPlayerController: trailerPlayerController,
+      aspectRatio: 3 / 2,
+      autoPlay: false,
+      looping: true,
+    );
+
+    // movieController = ChewieController(
+    //   videoPlayerController: moviePlayerController,
+    //   fullScreenByDefault: true,
+    //   deviceOrientationsAfterFullScreen: [DeviceOrientation.portraitUp],
+    //   aspectRatio: 16 / 9,
+    //   autoInitialize: true
+    // );
+
+    trailerWidget = Chewie(
+      controller: trailerController
+    );
+
+    // movieWidget = Chewie(
+    //   controller: movieController
+    // );
+
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    trailerPlayerController.dispose();
+    // moviePlayerController.dispose();
+    trailerController.dispose();
+    // movieController.dispose();
+    super.dispose();
+  }
+
+  void showSnackBar(BuildContext context){
+    Navigator.pop(context);
+    final snackBar = SnackBar(
+      backgroundColor: Theme.of(context).primaryColor,
+      content: Text('Download started. Check your Downloads tab'),
+      // action: SnackBarAction(
+      //   label: 'VIEW',
+      //   textColor: Colors.white,
+      //   onPressed: ()=> {}
+      //   // Navigator.pushNamed(context, '/download');
+      // ),
+    );
+    _scaffoldKey.currentState.showSnackBar(snackBar);
+  }
+
+  Widget movieHero(){
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.black
+      ),
+      child: trailerWidget
+      // child: Stack(
+      //   children: <Widget>[
+      //     Positioned(
+      //       child: ScopedModelDescendant<MainModel>(
+      //         builder: (BuildContext context, Widget child, MainModel model){
+      //           return IconButton(
+      //             onPressed: (){
+      //               model.likeMovie(widget._movie);
+      //             },
+      //             icon : (widget._movie.isLiked) ? Icon(Icons.favorite, color: Colors. red) : Icon(Icons.favorite_border, color: Colors.white)
+      //           );
+      //         },
+      //       ),
+      //       right: 5.0,
+      //     ),
+      //     Positioned(
+      //       child: Icon(Icons.playlist_add, color: Colors.white,),
+      //       top: 12.0,
+      //       right: 50.0,
+      //     ),
+      //     playerWidget
+      //   ],
+      // ),
+    );
+  }

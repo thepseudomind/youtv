@@ -22,28 +22,47 @@ class MovieDetail extends StatefulWidget {
 }
 
 class _MovieDetailState extends State<MovieDetail> {
+  VideoPlayerController trailerPlayerController;
+  ChewieController trailerController;
+  Chewie trailerWidget;
   final _scaffoldKey = GlobalKey<ScaffoldState>();
 
-  VideoPlayerController controller;
-  bool visible;
+  void initState(){
+    trailerPlayerController = VideoPlayerController.network(widget._movie.trailer);
+    // moviePlayerController = VideoPlayerController.network('https://firebasestorage.googleapis.com/v0/b/youtvapi.appspot.com/o/Concussion.mp4?alt=media&token=9c15437e-5b60-4ecb-93c0-3bdcfd1834a9');
 
-  @override
-  void initState() {
-    SystemChrome.setPreferredOrientations([
-      DeviceOrientation.portraitUp,
-      DeviceOrientation.portraitDown
-    ]);
-    visible = true;
-    controller = VideoPlayerController.network(widget._movie.trailer)
-    ..initialize().then((_){
-      setState((){});
-    });
+    trailerController = ChewieController(
+      videoPlayerController: trailerPlayerController,
+      aspectRatio: 3 / 2,
+      autoPlay: false,
+      looping: true,
+    );
+
+    // movieController = ChewieController(
+    //   videoPlayerController: moviePlayerController,
+    //   fullScreenByDefault: true,
+    //   deviceOrientationsAfterFullScreen: [DeviceOrientation.portraitUp],
+    //   aspectRatio: 16 / 9,
+    //   autoInitialize: true
+    // );
+
+    trailerWidget = Chewie(
+      controller: trailerController
+    );
+
+    // movieWidget = Chewie(
+    //   controller: movieController
+    // );
+
     super.initState();
   }
 
   @override
   void dispose() {
-    controller.dispose();
+    trailerPlayerController.dispose();
+    // moviePlayerController.dispose();
+    trailerController.dispose();
+    // movieController.dispose();
     super.dispose();
   }
 
@@ -67,47 +86,7 @@ class _MovieDetailState extends State<MovieDetail> {
       decoration: BoxDecoration(
         color: Colors.black
       ),
-      child: AspectRatio(
-        aspectRatio: 4/3,
-          child: GestureDetector(
-            onTap: (){
-              setState(() {visible = !visible;});
-            },
-            child: Stack(
-              children: <Widget>[
-                VideoPlayer(controller),
-                Align(
-                  alignment: Alignment.center,
-                  child: AnimatedOpacity(
-                    opacity: (visible) ? 1.0 : 0.0,
-                    duration: Duration(milliseconds: 500),
-                    child: Container(
-                      color: Colors.black54,
-                      child: Center(
-                        child: IconButton(
-                          onPressed: (){
-                            setState(() {
-                              if(controller.value.position >= controller.value.duration){
-                                  controller.initialize();
-                                  controller.play();
-                              }else{
-                                (controller.value.isPlaying) ? controller.pause() : controller.play();
-                              }
-                              visible = !visible;
-                            });
-                          },
-                          icon: Icon((controller.value.isPlaying) ? Icons.pause : Icons.play_circle_outline),
-                          color: Colors.white,
-                          iconSize: 100.0,
-                        ),
-                      )
-                    )
-                  )
-                ),
-              ],
-            )
-          )
-      )
+      child: trailerWidget
       // child: Stack(
       //   children: <Widget>[
       //     Positioned(

@@ -18,6 +18,8 @@ import './pages/edit_profile.dart';
 import './pages/forgot_password.dart';
 import './pages/facebook_page.dart';
 import './pages/youtube_channel.dart';
+import './pages/movie.dart';
+import './pages/download.dart';
 
 import './pages/android/home.dart';
 import './pages/movie_detail.dart';
@@ -114,6 +116,7 @@ class _MyYOUtvAppState extends State<YOUtv>{
                     imagePath: 'assets/youtv_logo.png',
                     home: alternativeRoute,
                     duration: 4000,
+                    splashBackgroundImage: 'assets/youtv_logo.png',
                   );
                 }
               ),
@@ -130,7 +133,9 @@ class _MyYOUtvAppState extends State<YOUtv>{
               '/forgot' : (context) => ForgotPasswordPage(),
               '/facebook-page': (context) => YOUtvFacebook(),
               '/youtube-page' : (context) => YOUtvYouTube(),
-              '/instagram-page' : (context) => YOUtvInstagram()
+              '/instagram-page' : (context) => YOUtvInstagram(),
+              '/download' : (context)=> DownloadPage()
+              // '/show-movie' : (context) => Movie()
             },
             onGenerateRoute: (RouteSettings settings){
               List<String> pathElements = settings.name.split('/');
