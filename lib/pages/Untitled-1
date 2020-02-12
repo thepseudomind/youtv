@@ -495,3 +495,12 @@ class _MovieDetailState extends State<MovieDetail> {
     );
   }
 }
+
+ListView.builder(
+            itemCount: model.downloadMovies.length,
+            itemBuilder: (context, index){
+              return ListTile(
+                title: Text(model.downloadMovies[index].name)
+              );
+            }
+          );

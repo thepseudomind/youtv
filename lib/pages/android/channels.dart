@@ -19,9 +19,14 @@ class ChannelsPage extends StatelessWidget{
               ),
               delegate: SliverChildBuilderDelegate(
                 (BuildContext context, int index){
-                  return Card(
-                    child: Center(
-                      child: Image.asset(_channels[index].logo)
+                  return GestureDetector(
+                    onTap: (){
+                      Navigator.pushNamed(context, '/channel/' + index.toString());
+                    },
+                    child: Card(
+                      child: Center(
+                        child: Image.asset(_channels[index].logo)
+                      )
                     )
                   );
                 },

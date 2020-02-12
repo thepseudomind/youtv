@@ -330,16 +330,17 @@ class MainModel extends Model with ChannelsModel{
   /* MOVIES MODEL */
   bool gridView = true;
   bool _moviesLoading = false;
-
   List<Movie> _movies = [];
   List<Movie> _likedMovies = [];
-  List <Download> downloadMovies = [];
+  List <Download> downloadedMovies = [];
+  SharedPreferences moviePrefs;
   dynamic movieStream;
+  downloadStatus status;
 
   DatabaseReference movieDatabase = FirebaseDatabase.instance.reference().child('movies');
   Dio dio  = Dio();
-  bool downloadStarted = false;
-  String downloadProgress;
+  CancelToken token = CancelToken();
+  String downloadProgress, recSz, totalSz;
 
   List<Movie> get movies{
     return List.from(_movies);
@@ -419,35 +420,58 @@ class MainModel extends Model with ChannelsModel{
     // print(_movies.length);
   }
 
-  Future<String> downloadMovie() async{
-    try {
-      Directory downloadPath = await getApplicationDocumentsDirectory();
-      dio.download('https://firebasestorage.googleapis.com/v0/b/youtvapi.appspot.com/o/Concussion.mp4', '${downloadPath.path}/movies/Concussion.mp4', onReceiveProgress: (rec, total){
-        downloadStarted = true;
-        downloadProgress = '${((rec/total) * 100).toStringAsFixed(0)}%';
-        downloadMovies.add(
-          Download(
-            name: 'Concussion',
-            src: '${downloadPath.path}/movies/Concussion.mp4'
-          )
-        );
-        // if(rec == total){
-        //   downloadMovies.add(
-        //     Download(
-        //       src: '${downloadPath.path}/movies/Concussion.mp4'
-        //     )
-        //   );
-        //   notifyListeners();
-        // }
-        notifyListeners();
-      });
+  //Check if movie was downloaded and saved in shared prefs
+  Future<void> checkForDownload(Movie movie) async{
+    moviePrefs = await SharedPreferences.getInstance();
+    if(moviePrefs.containsKey(movie.title)){
+      status = downloadStatus.Downloaded;
       notifyListeners();
+    }else{
+      status = downloadStatus.StartDownload;
+      downloadProgress = "";
+      notifyListeners();
+    }
+  }
+
+  Future<void> downloadMovie(Download movieToDownload) async{
+    Directory savePath = await getApplicationDocumentsDirectory();
+
+    try {
+      moviePrefs = await SharedPreferences.getInstance();
+      status = downloadStatus.Downloading;
+      await dio.download(
+        movieToDownload.src,
+        '${savePath.path}/${movieToDownload.name.toLowerCase().replaceAll('', '-')}.mp4',
+        onReceiveProgress: (rec, total){
+          recSz = (rec/1024000).toDouble().toStringAsFixed(2);
+          totalSz = (total/1024000).toDouble().toStringAsFixed(2);
+          downloadProgress = (rec/total).toStringAsPrecision(2);
+          notifyListeners();
+        },
+        cancelToken: token
+      );
     } catch (e) {
-      print('An error occured');
+      print(e);
+      status = downloadStatus.StartDownload;
+      downloadProgress = "";
+      notifyListeners();
     }
 
-    downloadProgress = 'Completed';
-    return downloadProgress;
+    recSz = totalSz;
+    downloadProgress = "Completed";
+    status = downloadStatus.Downloaded;
+    moviePrefs.setString(movieToDownload.name, '${savePath.path}/${movieToDownload.name.toLowerCase().replaceAll(' ', '')}.mp4');
+    notifyListeners();
+  }
+
+  void endDownload(){
+    downloadProgress = "";
+    token.cancel("cancelled");
+  }
+
+  Future<dynamic> getMovieFromFile(Movie movie) async{
+    moviePrefs = await SharedPreferences.getInstance();
+    return moviePrefs.getString(movie.title);
   }
 
   //FUNCTION TO CHANGE LAYOUT VIEW

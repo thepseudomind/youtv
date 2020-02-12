@@ -1,21 +1,24 @@
-import 'dart:io';
+import 'package:flutter/foundation.dart' show TargetPlatform;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:chewie/chewie.dart';
 import 'package:scoped_model/scoped_model.dart';
 import 'package:video_player/video_player.dart';
+import 'package:youtv/models/download.dart';
+import 'package:youtv/pages/local_movie.dart';
 import 'package:youtv/pages/movie.dart';
+import 'package:youtv/utilities/utils.dart';
 import '../scoped_models/main.dart';
 import '../models/movie.dart';
 
 import '../pages/comments.dart';
 
 class MovieDetail extends StatefulWidget {
+  final MainModel _model;
   final Movie _movie;
   final int _index;
 
-  MovieDetail(this._movie, this._index);
+  MovieDetail(this._model, this._movie, this._index);
 
   @override
   _MovieDetailState createState() => _MovieDetailState();
@@ -38,6 +41,8 @@ class _MovieDetailState extends State<MovieDetail> {
     ..initialize().then((_){
       setState((){});
     });
+    //Check for movie download status
+    widget._model.checkForDownload(widget._movie);
     super.initState();
   }
 
@@ -330,8 +335,123 @@ class _MovieDetailState extends State<MovieDetail> {
     );
   }
 
+  Widget modalToDisplay(){
+    if(widget._model.status == downloadStatus.Downloading){
+      return Card(
+        child: Container(
+          height: 80.0,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Text(widget._movie.title),
+              SizedBox(height: 5.0),
+              widget._model.downloadProgress == "Completed" ? Text('${widget._model.totalSz}MB') : Text('${widget._model.recSz}MB/${widget._model.totalSz}MB'),
+              SizedBox(height: 5.0),
+              widget._model.downloadProgress == "Completed" ? Text('Download complete') : LinearProgressIndicator(
+                value: double.parse(widget._model.downloadProgress),
+              )
+            ]
+          )
+        )
+      );
+    }else if(widget._model.status == downloadStatus.Downloaded){
+      return Container(
+        height: 150,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: <Widget>[
+            GestureDetector(
+              onTap: (){
+                Navigator.push(context, MaterialPageRoute(
+                  builder: (context){
+                    return LocalMovie(widget._model, widget._movie);
+                  }
+                ));
+              },
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  CircleAvatar(
+                    backgroundColor: Colors.green,
+                    radius: 25.0,
+                    child: Icon(Icons.play_arrow, color: Colors.white)
+                  ),
+                  SizedBox(height: 5.0),
+                  Text('Play Movie'),
+                ]
+              ),
+            ),
+            GestureDetector(
+              onTap: ()=> Navigator.push(context, MaterialPageRoute(
+              builder: (context)=> StreamPage(index: widget._index)
+            )),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  CircleAvatar(
+                    backgroundColor: Colors.teal,
+                    radius: 25.0,
+                    child: Icon(Icons.live_tv, color: Colors.white)
+                  ),
+                  SizedBox(height: 5.0),
+                  Text('Stream movie')
+                ]
+              )
+            )
+          ],
+        )
+      );
+    }else{
+      return Container(
+        height: 150,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: <Widget>[
+            GestureDetector(
+              onTap: (){
+                widget._model.downloadMovie(Download(name: widget._movie.title, src: widget._movie.trailer));
+                //Download(name: widget._movie.title, src: widget._movie.trailer)
+                //Navigator.pushNamed(context, '/download/' + widget._index.toString());
+              },
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  CircleAvatar(
+                    backgroundColor: Colors.blue,
+                    radius: 25.0,
+                    child: Icon(Icons.file_download, color: Colors.white)
+                  ),
+                  SizedBox(height: 5.0),
+                  Text('Download movie'),
+                ]
+              ),
+            ),
+            GestureDetector(
+              onTap: ()=> Navigator.push(context, MaterialPageRoute(
+              builder: (context)=> StreamPage(index: widget._index)
+            )),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  CircleAvatar(
+                    backgroundColor: Colors.teal,
+                    radius: 25.0,
+                    child: Icon(Icons.live_tv, color: Colors.white)
+                  ),
+                  SizedBox(height: 5.0),
+                  Text('Stream movie')
+                ]
+              )
+            )
+          ],
+        )
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    var platform = Theme.of(context).platform;
     return ScopedModelDescendant<MainModel>(
       builder: (context, child, model){
         return Scaffold(
@@ -418,7 +538,7 @@ class _MovieDetailState extends State<MovieDetail> {
                 Expanded(
                   child: GestureDetector(
                     onTap: (){
-                      if(Platform.isIOS){
+                      if(platform == TargetPlatform.iOS){
                         showCupertinoModalPopup(
                           context: context,
                           builder: (context){
@@ -434,7 +554,7 @@ class _MovieDetailState extends State<MovieDetail> {
                                   child: Text('Download movie'),
                                   onPressed: (){
                                     showSnackBar(context);
-                                    model.downloadMovie();
+                                    // model.downloadMovie();
                                   }
                                 )
                               ],
@@ -448,48 +568,10 @@ class _MovieDetailState extends State<MovieDetail> {
                         );
                       }else{
                         showModalBottomSheet(
+                          isDismissible: (model.status == downloadStatus.Downloading ? false : true),
                           context: context,
                           builder: (context){
-                            return Container(
-                              height: 150,
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                children: <Widget>[
-                                  GestureDetector(
-                                    onTap: ()=> {},
-                                    child: Column(
-                                      mainAxisAlignment: MainAxisAlignment.center,
-                                      children: <Widget>[
-                                        CircleAvatar(
-                                          backgroundColor: Colors.blue,
-                                          radius: 25.0,
-                                          child: Icon(Icons.file_download, color: Colors.white)
-                                        ),
-                                        SizedBox(height: 5.0),
-                                        Text('Download movie'),
-                                      ]
-                                    ),
-                                  ),
-                                  GestureDetector(
-                                    onTap: ()=> Navigator.push(context, MaterialPageRoute(
-                                    builder: (context)=> StreamPage(index: widget._index)
-                                  )),
-                                    child: Column(
-                                      mainAxisAlignment: MainAxisAlignment.center,
-                                      children: <Widget>[
-                                        CircleAvatar(
-                                          backgroundColor: Colors.teal,
-                                          radius: 25.0,
-                                          child: Icon(Icons.live_tv, color: Colors.white)
-                                        ),
-                                        SizedBox(height: 5.0),
-                                        Text('Stream movie')
-                                      ]
-                                    )
-                                  )
-                                ],
-                              )
-                            );
+                            return modalToDisplay();
                           }
                         );
                       }

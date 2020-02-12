@@ -1,9 +1,12 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:scoped_model/scoped_model.dart';
+import 'package:youtv/pages/channel.dart';
 import 'package:youtv/pages/instagram-page.dart';
 import './pages/payment.dart';
 import './scoped_models/main.dart';
+import './models/channel.dart';
 import 'package:animated_splash/animated_splash.dart';
 
 //TEST IM PAGE
@@ -53,6 +56,10 @@ class _MyYOUtvAppState extends State<YOUtv>{
 
   @override
   void initState(){
+      SystemChrome.setPreferredOrientations([
+        DeviceOrientation.portraitUp,
+        DeviceOrientation.portraitDown
+      ]);
      checkForUser();
     // authPage = SplashScreen(model);
     super.initState();
@@ -149,12 +156,20 @@ class _MyYOUtvAppState extends State<YOUtv>{
                 return MaterialPageRoute(
                   builder: (BuildContext context) => ScopedModelDescendant(
                     builder: (BuildContext context, Widget child, MainModel model){
-                      return MovieDetail(model.movies[index], index);
+                      return MovieDetail(model, model.movies[index], index);
+                    },
+                  )
+                );
+              }else if(pathElements[1] == 'channel'){
+                int index = int.parse(pathElements[2]);
+                return MaterialPageRoute(
+                  builder: (BuildContext context) => ScopedModelDescendant(
+                    builder: (BuildContext context, Widget child, MainModel model){
+                      return ShowChannel(model.channels[index], index);
                     },
                   )
                 );
               }
-
             },
           );
         },
