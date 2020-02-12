@@ -26,10 +26,10 @@ class _LocalMovieState extends State<LocalMovie> {
   Future<void> fetchFile() async{
     try {
       videoPath = await widget.model.getMovieFromFile(widget.movie);
+      print(videoPath);
     } catch (e) {
       print(e);
     }
-    print(videoPath);
   }
 
   @override
