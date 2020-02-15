@@ -120,10 +120,10 @@ class _MyYOUtvAppState extends State<YOUtv>{
                   // }
                   Widget alternativeRoute = (introRoute == null) ? AuthPage() : introRoute;
                   return AnimatedSplash(
-                    imagePath: 'assets/youtv_logo.png',
+                    imagePath: 'assets/test.png',
                     home: alternativeRoute,
                     duration: 4000,
-                    splashBackgroundImage: 'assets/youtv_logo.png',
+                    splashBackgroundImage: 'assets/test.png',
                   );
                 }
               ),
@@ -141,7 +141,7 @@ class _MyYOUtvAppState extends State<YOUtv>{
               '/facebook-page': (context) => YOUtvFacebook(),
               '/youtube-page' : (context) => YOUtvYouTube(),
               '/instagram-page' : (context) => YOUtvInstagram(),
-              '/download' : (context)=> DownloadPage()
+              '/downloads' : (context)=> DownloadPage(model)
               // '/show-movie' : (context) => Movie()
             },
             onGenerateRoute: (RouteSettings settings){

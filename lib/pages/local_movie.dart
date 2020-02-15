@@ -25,8 +25,7 @@ class _LocalMovieState extends State<LocalMovie> {
 
   Future<void> fetchFile() async{
     try {
-      videoPath = await widget.model.getMovieFromFile(widget.movie);
-      print(videoPath);
+      await widget.model.getMovieFromFile(widget.movie);
     } catch (e) {
       print(e);
     }
@@ -40,13 +39,17 @@ class _LocalMovieState extends State<LocalMovie> {
       DeviceOrientation.landscapeRight
     ]);
     fetchFile();
-    _videoPlayerController = VideoPlayerController.file(videoPath);
+    _videoPlayerController = VideoPlayerController.file(widget.model.movieStream)
+    ..initialize().then((_){
+      setState((){});
+    });
     _chewieController = ChewieController(
       videoPlayerController: _videoPlayerController,
       aspectRatio: 2.0,
       autoInitialize: true,
       showControlsOnInitialize: false,
       allowFullScreen: true,
+      autoPlay: false,
       fullScreenByDefault: true,
       deviceOrientationsAfterFullScreen: [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown],
       systemOverlaysAfterFullScreen: SystemUiOverlay.values,

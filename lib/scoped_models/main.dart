@@ -332,7 +332,7 @@ class MainModel extends Model with ChannelsModel{
   bool _moviesLoading = false;
   List<Movie> _movies = [];
   List<Movie> _likedMovies = [];
-  List <Download> downloadedMovies = [];
+  List <String> downloadedMovies = [];
   SharedPreferences moviePrefs;
   dynamic movieStream;
   downloadStatus status;
@@ -469,9 +469,27 @@ class MainModel extends Model with ChannelsModel{
     token.cancel("cancelled");
   }
 
-  Future<dynamic> getMovieFromFile(Movie movie) async{
+  Future<void> getMovieFromFile(Movie movie) async{
     moviePrefs = await SharedPreferences.getInstance();
-    return moviePrefs.getString(movie.title);
+    movieStream = moviePrefs.getString(movie.title);
+    notifyListeners();
+  }
+
+  Future<void> getListOfDownloads() async{
+    List<String> moviesDownloaded;
+    moviePrefs = await SharedPreferences.getInstance();
+    moviesDownloaded = moviePrefs.getKeys().toList();
+    for (var i = 0; i < moviesDownloaded.length; i++) {
+      if(moviesDownloaded[i] != 'email' && moviesDownloaded[i] != 'password' && moviesDownloaded[i] != 'token'){
+        downloadedMovies.add(moviesDownloaded[i]);
+      }
+    }
+    notifyListeners();
+    print(downloadedMovies);
+  }
+
+  void clearDownloadsList() {
+    downloadedMovies.clear();
   }
 
   //FUNCTION TO CHANGE LAYOUT VIEW

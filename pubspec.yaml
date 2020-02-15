@@ -70,6 +70,7 @@ flutter:
   assets:
    - assets/youtv_logo.png
    - assets/youtvlogo.png
+   - assets/test.png
    - assets/sample-logo.png 
    - assets/logo.png
    - assets/google-icon.png

@@ -82,7 +82,7 @@ class _HomePageState extends State<HomePage> {
                   Divider(),
                   ListTile(
                     onTap: (){
-                      // Navigator.pushNamed(context, '/settings');
+                      Navigator.pushNamed(context, '/downloads');
                     },
                     trailing: Icon(Icons.file_download, color: (model.darkMode) ? Color(0xFFECAC46) : Theme.of(context).primaryColor),
                     title: Text('Downloads'),
